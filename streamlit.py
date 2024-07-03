@@ -1,4 +1,3 @@
-from matplotlib import pyplot as plt
 import streamlit as st
 import numpy as np
 import tensorflow as tf
@@ -6,6 +5,7 @@ from sklearn.preprocessing import StandardScaler
 import shap
 import pickle
 import plotly.express as px
+from matplotlib import pyplot as plt
 import pandas as pd
 import plotly.graph_objects as go
 
