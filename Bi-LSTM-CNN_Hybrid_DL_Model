@@ -1,0 +1,47 @@
+from tensorflow.keras.models import Model, Sequential, load_model
+from tensorflow.keras.layers import Input, Concatenate, Conv1D, MaxPooling1D, Flatten, Dense, Bidirectional, LSTM, Dropout
+from tensorflow.keras.optimizers import Adam
+
+num_classes = 4
+drive.mount('/content/gdrive')
+# Load the Bi-LSTM model from the h5 file
+bi_lstm_model = load_model('/content/gdrive/MyDrive/Hyperparameter_bi_lstm_model.h5')
+
+# Extract the output of the last LSTM layer in the Bi-LSTM model
+bi_lstm_output = bi_lstm_model.layers[-2].output
+
+# Create the input layer for both Bi-LSTM and CNN branches
+input_layer = Input(shape=(17, 1), name='shared_input')
+
+# Connect the input layer to the Bi-LSTM branch
+bi_lstm_output = bi_lstm_model(input_layer)
+
+# Define the CNN branch
+cnn_branch = Sequential(name='sequential_2')
+cnn_branch.add(Conv1D(filters=128, kernel_size=3, activation='relu', input_shape=(17, 1)))
+cnn_branch.add(MaxPooling1D(pool_size=2))
+cnn_branch.add(Flatten())
+
+# Connect the input layer to the CNN branch
+cnn_output = cnn_branch(input_layer)
+
+# Concatenate the output of Bi-LSTM with the output of CNN
+combined_output = Concatenate(name='concatenate')([bi_lstm_output, cnn_output])
+
+# Final output layer
+output_layer = Dense(num_classes, activation='softmax', name='dense_4')(combined_output)
+
+# Create the final hybrid model
+hybrid_model2 = Model(inputs=input_layer, outputs=output_layer)
+
+# Define the learning rate
+learning_rate = 0.001
+
+# Define the optimizer with the specified learning rate
+optimizer = Adam(learning_rate=learning_rate)
+
+# Compile the hybrid model with the specified optimizer
+hybrid_model2.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
+
+# Model summary
+hybrid_model2.summary()
